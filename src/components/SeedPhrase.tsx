@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Card,
   CardContent,
@@ -10,21 +10,56 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { generateMnemonic } from 'bip39';
+import { generateMnemonic, mnemonicToSeed } from 'bip39';
 import { Checkbox } from "@/components/ui/checkbox"
+import { useRouter,  } from "next/navigation";
+import { AppContext } from "@/context/appContext";
+import { makeWallet } from "@/lib/wallet";
+
 
 
 const mnemonic = generateMnemonic();
 
 
 
-
-const Page = () => {
+const SeedPhrase = () => {
+const router = useRouter()
 
   const [isChecked, setIsChecked] = useState(false)
+  const {walletState, setWalletState} = useContext(AppContext)
+
 
   const handleClick = ()=>{
     setIsChecked(!isChecked)
+  }
+
+  const handleWalletClick = async ()=>{
+    try {
+        const seedPhrase =  (await mnemonicToSeed(mnemonic)).toString("hex");
+        localStorage.setItem("seedHash", seedPhrase)
+        const {privateKey, publickKey, path} = makeWallet(seedPhrase, walletState?.walletIndex)
+        const newWallets = [...walletState.wallets, {
+          privateId : privateKey,
+          publicId: publickKey,
+          method: path,
+          number: walletState.walletIndex
+        }]
+        const newWalletState = {
+        ...walletState,
+          walletIndex: walletState?.walletIndex + 1,
+          wallets: newWallets,
+          seedHash: seedPhrase,
+        }
+        if(setWalletState){
+          setWalletState(newWalletState)
+          localStorage.setItem("wallets", JSON.stringify(newWallets) )
+          localStorage.setItem("walletIndex", Number( walletState?.walletIndex + 1).toString())
+        } 
+          router.push("/wallets")
+
+    } catch (error) {
+        alert("something went wrong")
+    }
   }
 
   return (
@@ -39,16 +74,10 @@ const Page = () => {
       <CardContent>
         <div className="grid grid-cols-4 gap-2">
 {
-
-  
   mnemonic.split(" ").map((word)=>{
     return <Input value={word} disabled key={word} className="disabled:opacity-100"/>
-  })
-  
-}
-
-
-        
+  }) 
+} 
         </div>
       </CardContent>
       <CardFooter className="flex flex-col">
@@ -62,7 +91,7 @@ const Page = () => {
       </label>
         </div>
 
-      <Button disabled={!isChecked} variant={"default"} className="w-full bg-green-800 text-white hover:bg-green-700">
+      <Button onClick={handleWalletClick} disabled={!isChecked} variant={"default"} className="w-full bg-green-800 text-white hover:bg-green-700">
           Make a new Wallet.
         </Button>
         
@@ -73,4 +102,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default SeedPhrase;

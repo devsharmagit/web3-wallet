@@ -1,15 +1,15 @@
-import { ThemeProvider } from "@/components/theme-provider"
-import React from "react"
+import { ThemeProvider } from "@/components/theme-provider";
+import { AppContextProvider } from "@/context/appContext";
+import React from "react";
 
-
-export const Providers = ({children}: {children: React.ReactNode})=>{
-    return <>
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="dark">
-        {children}
-    </ThemeProvider>
+export const Providers = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <>
+      <ThemeProvider attribute="class" defaultTheme="dark">
+        <AppContextProvider>
+          {children}
+        </AppContextProvider>
+      </ThemeProvider>
     </>
-}
-
- 
+  );
+};

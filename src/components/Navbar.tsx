@@ -8,9 +8,11 @@ const Navbar = () => {
   return (
     <>
       <div className="py-3 px-4 max-w-7xl m-auto flex justify-between items-center">
+        <Link href={"/"} >
         <h1 className="dark:text-white font-semibold text-2xl ">
           Web3 wallet
         </h1>
+        </Link>
         <div className="flex gap-3 items-center">
           <ThemeToggler />
           <Link href={"https://x.com/CodeDevsharma"} target="_blank">
