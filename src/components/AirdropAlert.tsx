@@ -24,7 +24,7 @@ const AirdropAlert = ({open, onSuccess, setIsAlertOpen}:{open: boolean, onSucces
   }
 
     return (
-    <AlertDialog open={open}>
+    <AlertDialog open={open} >
     <AlertDialogTrigger asChild>
       {/* <Button variant="outline">Show Dialog</Button> */}
     </AlertDialogTrigger>
