@@ -23,7 +23,13 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <Navbar />
+          <div className="h-[50rem]  w-full dark:bg-black bg-white  dark:bg-grid-white/[0.2] bg-grid-black/[0.2] relative  ">
+          
+          <div className="absolute  pointer-events-none inset-0 flex items-center justify-center dark:bg-black bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+          <span className="relative z-[40111111111]">
           {children}
+          </span>
+          </div>
           <Toaster />
         </Providers>
       </body>
