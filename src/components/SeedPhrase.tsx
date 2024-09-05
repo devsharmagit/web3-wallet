@@ -55,7 +55,7 @@ const router = useRouter()
           localStorage.setItem("wallets", JSON.stringify(newWallets) )
           localStorage.setItem("walletIndex", Number( walletState?.walletIndex + 1).toString())
         } 
-          router.push("/wallets")
+          router.push("/create-password")
 
     } catch (error) {
         alert("something went wrong")

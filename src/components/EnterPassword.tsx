@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Card,
   CardContent,
@@ -12,18 +12,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import bcrypt from "bcryptjs";
 import { useRouter } from "next/navigation";
+import { AppContext } from "@/context/appContext";
 
 const EnterPassword = () => {
+
+  const {setIsAuthenticated} = useContext(AppContext)
+
   const [password, setPassword] = useState<string>("");
   const router = useRouter();
 
-  const hashedPassword = localStorage.getItem("password-hash") 
+  const hashedPassword = localStorage.getItem("password") 
+  console.log(hashedPassword)
 
   const handleClick = async () => {
     if(hashedPassword){
         const hashedPass = await bcrypt.compare(password, hashedPassword);
-        if(hashedPass) router.push("/wallets")
-        alert("Wrong Password.")
+        console.log(hashedPass)
+        if(hashedPass) {
+          if(setIsAuthenticated) {
+            setIsAuthenticated(true)}
+          router.push("/wallets")
+        }
+          else{
+            alert("wrong password!")
+          }
+        
     }
   };
 
@@ -51,7 +64,7 @@ const EnterPassword = () => {
         <CardFooter className="flex flex-col">
           <Button
             onClick={handleClick}
-            disabled={password.length < 8}
+            disabled={password.length < 7}
             variant={"default"}
             className="w-full bg-green-800 text-white hover:bg-green-700"
           >

@@ -22,7 +22,10 @@ const initialState = {
 
 interface AppContextType {
   walletState: AppContextStateType,
-  setWalletState?: React.Dispatch<React.SetStateAction<AppContextStateType>>
+  setWalletState?: React.Dispatch<React.SetStateAction<AppContextStateType>>,
+  isAuthenticated?: boolean,
+  setIsAuthenticated?: React.Dispatch<React.SetStateAction<boolean>>
+
 }
 
 export const AppContext = createContext<AppContextType >({walletState: initialState});
@@ -34,9 +37,10 @@ export const AppContextProvider = ({
 }) => {
 
 const [walletState, setWalletState] = useState<AppContextStateType>(initialState)
+const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
 
     useEffect(()=>{
-const passwordHash =  localStorage.getItem("password-hash")
+const passwordHash =  localStorage.getItem("password")
 let wallets = null;
 let walletIndex = 0;
 if( localStorage.getItem("wallets")){
@@ -61,6 +65,6 @@ setWalletState({
     }, [])
 
   return (
-    <AppContext.Provider value={{walletState, setWalletState}}>{children}</AppContext.Provider>
+    <AppContext.Provider value={{walletState, setWalletState, isAuthenticated, setIsAuthenticated}}>{children}</AppContext.Provider>
   );
 };

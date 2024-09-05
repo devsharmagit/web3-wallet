@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Card,
   CardContent,
@@ -12,10 +12,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import bcrypt from "bcryptjs";
 import { useRouter } from "next/navigation";
+import { AppContext } from "@/context/appContext";
 
 const CreatePassword = () => {
   const [password, setPassword] = useState<string>("");
   const router = useRouter();
+  const {setWalletState, walletState} = useContext(AppContext)
 
   const handleClick = async () => {
     if (password.length < 8) {
@@ -25,6 +27,7 @@ const CreatePassword = () => {
     const hashedPass = await bcrypt.hash(password, 10);
     localStorage.setItem("password", hashedPass);
     if (localStorage.getItem("password")) {
+      if(setWalletState)  setWalletState({...walletState, password})
       router.push("/wallets");
     }
   };

@@ -1,15 +1,26 @@
 "use client"
 
+import EnterPassword from "@/components/EnterPassword";
 import GetStarted from "@/components/GetStarted";
 import { AppContext } from "@/context/appContext";
+import { useRouter } from "next/navigation";
 import React, { useContext } from "react";
 
 
 const Page = () => {
 
-  const {password, seedHash, wallets} = useContext(AppContext)
+const router = useRouter()
 
-  console.log({password, seedHash, wallets})
+  const {setWalletState, walletState, isAuthenticated} = useContext(AppContext)
+
+  if(isAuthenticated){
+    return router.push("/wallets")
+  }
+
+  if(walletState.password){
+    return <EnterPassword />
+  }
+
 
 
   return (

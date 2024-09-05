@@ -6,21 +6,17 @@ import { Button } from '@/components/ui/button'
 import { AppContext, WalletTypes } from '@/context/appContext'
 import { makeWallet } from '@/lib/wallet';
 import { availableMemory } from 'process';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Clipboard, Eye, EyeOff,Send, ArrowDownToLine } from 'lucide-react';
-import { Input } from "@/components/ui/input"
-import Image from 'next/image';
+
+import Alert from '@/components/Alert';
+import AccountInfo from '@/components/AccountInfo';
 
 
 
 
+export enum Network{
+  mainnet = "mainnet",
+  devnet="devnet"
+}
 
 
 const Page = () => {
@@ -28,9 +24,11 @@ const Page = () => {
     const {walletState, setWalletState} = useContext(AppContext)
 
     const [activeWallet, setActiveWallet] = useState<WalletTypes>(walletState.wallets[0])
-    const [isHidden, setIsHidden] = useState<boolean>(true)
+    const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false)
+    const [network ,setNetwork] = useState<Network>(Network.mainnet)
 
     const handleAddWalletclick = ()=>{
+      
 const {publickKey, privateKey, path} = makeWallet(walletState.seedHash, walletState.walletIndex)
 const newWallets = [...walletState.wallets, {
   privateId : privateKey,
@@ -48,9 +46,29 @@ if(setWalletState){
   localStorage.setItem("wallets", JSON.stringify(newWallets) )
   localStorage.setItem("walletIndex", Number( walletState?.walletIndex + 1).toString())
 } 
+setIsAlertOpen(false)
     }
   return (
+    <>
+  <div className="w-full py-4 gap-4 flex justify-center">
+  <div onClick={()=>setNetwork(Network.mainnet)}
+    className={`w-[100px] text-center bg-transparent cursor-pointer border-white border-opacity-50 text-white border rounded-lg px-2 py-1 ${
+      network === Network.mainnet ? "!bg-blue-500 border-blue-500 border-opacity-100" : ""
+    }`}
+  >
+    <p>Mainnet</p>
+  </div>
+  <div onClick={()=>setNetwork(Network.devnet)}
+    className={`w-[100px] text-center cursor-pointer bg-transparent border-white border-opacity-50 border rounded-lg px-2 py-1 ${
+      network === Network.devnet ? "!bg-blue-500 border-blue-500 border-opacity-100" : ""
+    }`}
+  >
+    <p>Devnet</p>
+  </div>
+</div>
+
     <div className="h-[88vh] flex justify-center items-center py-4">
+      
       <div className='max-w-7xl w-[100vw] px-4  flex  h-full border-2 rounded-2xl border-white border-opacity-30 overflow-hidden'>
 <div className='w-[250px] py-4 px-2'> 
     <h1 className='text-xl font-bold'> Wallets </h1>
@@ -62,71 +80,22 @@ if(setWalletState){
 Account {index + 1}
       </div>
     })}
-<Button onClick={handleAddWalletclick} variant={"default"} className="w-full !py-0 bg-green-800 text-white hover:bg-green-700">
+<Button onClick={()=>setIsAlertOpen(true)} variant={"default"} className="w-full !py-0 bg-green-800 text-white hover:bg-green-700">
        add Wallet
 </Button>
 </div>
 
 </div>
 {
-  activeWallet && <div className='col-span-3 flex-grow px-4 py-4'>
-  <div className='mb-4'>
+  activeWallet ? <AccountInfo activeWallet={activeWallet}network={network} /> : <p className='text-center w-full py-4'>Choose an account!</p>
   
-    <h1 className='text-2xl font-bold'> Account {activeWallet.number + 1}</h1>
-  </div>
-  <Card>
-    
-    <CardHeader>
-    <Image alt='solana' src={"/solana.svg"} width={100} height={100}  className=' object-contain h-[50px] w-[50px]' />
-      <CardDescription>
-        Your Accont Information
-      </CardDescription>
-    </CardHeader>
-    <CardContent className='flex flex-col gap-3'>
-      <div>
-      <h1 className='text-lg font-medium'>
-        Public Key :
-      </h1>
-      <div className='p-1  items-center gap-2 flex justify-between'>
-      <Input  value={activeWallet.publicId} className='text-xs'/>
-  <Clipboard className='cursor-pointer' onClick={()=>navigator.clipboard.writeText(activeWallet.publicId)} />
-      </div>
-      </div>
-     <div>
-      <h1 className='text-lg font-medium'>
-        Private Key :
-      </h1>
-      <div className='p-1  items-center  flex justify-between'>
-        <Input type={isHidden ? "password" : "text"} value={activeWallet.privateId} className='text-xs' />
-        <div className='flex items-center px-2 gap-1'>
-          {
-            isHidden ? 
-  <Eye className='cursor-pointer' onClick={()=>setIsHidden(false)} />
-    :
-    <EyeOff className='cursor-pointer' onClick={()=>setIsHidden(true)} />
-          }
-  <Clipboard className='cursor-pointer' onClick={()=>navigator.clipboard.writeText(activeWallet.privateId)} />
-        </div>
-      </div>
-     </div>
-     <div className='w-fit flex gap-2'>
-     <Button variant={"default"} className="w-full bg-green-800 text-white hover:bg-green-700 flex gap-1">
-       <Send className='w-4 h-4'/>
-       Send
-        </Button>
-     <Button variant={"default"} className="w-full bg-red-800 text-white hover:bg-red-700 flex gap-1">
-       <ArrowDownToLine className='w-4 h-4'/>
-       Request Airdrop
-        </Button>
-     </div>
-    </CardContent>
-   
-  </Card>
-  </div>
 }
 
       </div>
+   
+    <Alert open={isAlertOpen} setIsAlertOpen={setIsAlertOpen} onSuccess={handleAddWalletclick} />
     </div>
+    </>
   )
 }
 
