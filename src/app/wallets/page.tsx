@@ -1,22 +1,12 @@
 "use client";
 import React, { useContext, useState } from 'react'
 import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from '@/components/ui/button'
 import { AppContext, WalletTypes } from '@/context/appContext'
 import { makeWallet } from '@/lib/wallet';
-import { availableMemory } from 'process';
-
 import Alert from '@/components/Alert';
 import AccountInfo from '@/components/AccountInfo';
 
-
-
-
-export enum Network{
-  mainnet = "mainnet",
-  devnet="devnet"
-}
 
 
 const Page = () => {
@@ -25,7 +15,7 @@ const Page = () => {
 
     const [activeWallet, setActiveWallet] = useState<WalletTypes>(walletState.wallets[0])
     const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false)
-    const [network ,setNetwork] = useState<Network>(Network.mainnet)
+    const [apinetwork ,setNetwork] = useState<"mainnet" | "devnet">("mainnet")
 
     const handleAddWalletclick = ()=>{
       
@@ -51,16 +41,16 @@ setIsAlertOpen(false)
   return (
     <>
   <div className="w-full py-4 gap-4 flex justify-center">
-  <div onClick={()=>setNetwork(Network.mainnet)}
+  <div onClick={()=>setNetwork('mainnet')}
     className={`w-[100px] text-center bg-transparent cursor-pointer border-white border-opacity-50 text-white border rounded-lg px-2 py-1 ${
-      network === Network.mainnet ? "!bg-blue-500 border-blue-500 border-opacity-100" : ""
+      apinetwork === "mainnet" ? "!bg-blue-500 border-blue-500 border-opacity-100" : ""
     }`}
   >
     <p>Mainnet</p>
   </div>
-  <div onClick={()=>setNetwork(Network.devnet)}
+  <div onClick={()=>setNetwork("devnet")}
     className={`w-[100px] text-center cursor-pointer bg-transparent border-white border-opacity-50 border rounded-lg px-2 py-1 ${
-      network === Network.devnet ? "!bg-blue-500 border-blue-500 border-opacity-100" : ""
+      apinetwork === "devnet" ? "!bg-blue-500 border-blue-500 border-opacity-100" : ""
     }`}
   >
     <p>Devnet</p>
@@ -87,7 +77,7 @@ Account {index + 1}
 
 </div>
 {
-  activeWallet ? <AccountInfo activeWallet={activeWallet}network={network} /> : <p className='text-center w-full py-4'>Choose an account!</p>
+  activeWallet ? <AccountInfo activeWallet={activeWallet}network={apinetwork} /> : <p className='text-center w-full py-4'>Choose an account!</p>
   
 }
 

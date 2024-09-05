@@ -13,13 +13,19 @@ import { Input } from "@/components/ui/input";
 import bcrypt from "bcryptjs";
 import { useRouter } from "next/navigation";
 import { AppContext } from "@/context/appContext";
+import { useToast } from "@/hooks/use-toast";
+import { Loader } from "lucide-react";
 
 const CreatePassword = () => {
   const [password, setPassword] = useState<string>("");
   const router = useRouter();
-  const {setWalletState, walletState} = useContext(AppContext)
+  const {setWalletState, walletState} = useContext(AppContext);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { toast} = useToast()
 
   const handleClick = async () => {
+    setIsLoading(true)
     if (password.length < 8) {
       alert("password should be 8 characters long!");
       return;
@@ -28,8 +34,13 @@ const CreatePassword = () => {
     localStorage.setItem("password", hashedPass);
     if (localStorage.getItem("password")) {
       if(setWalletState)  setWalletState({...walletState, password})
-      router.push("/wallets");
+        toast({
+          description: "Successfully Added password!",
+          variant: "success",
+        })
+        router.push("/wallets");
     }
+    setIsLoading(false)
   };
 
   return (
@@ -60,6 +71,7 @@ const CreatePassword = () => {
             variant={"default"}
             className="w-full bg-green-800 text-white hover:bg-green-700"
           >
+             {isLoading && <Loader className="animate-spin" /> }
             Confirm
           </Button>
         </CardFooter>

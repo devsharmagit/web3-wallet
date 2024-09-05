@@ -15,9 +15,6 @@ const Page = () => {
     return router.push("/wallets")
   }
 
-  console.log(walletState)
-  console.log(isAuthenticated)
-
   return (
     <div className="h-[90vh] flex justify-center items-center">
     <SeedPhrase />

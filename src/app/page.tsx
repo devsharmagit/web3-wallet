@@ -11,7 +11,7 @@ const Page = () => {
 
 const router = useRouter()
 
-  const {setWalletState, walletState, isAuthenticated} = useContext(AppContext)
+  const { walletState, isAuthenticated} = useContext(AppContext)
 
   if(isAuthenticated){
     return router.push("/wallets")

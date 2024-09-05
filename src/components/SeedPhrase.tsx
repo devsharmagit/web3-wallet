@@ -15,6 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { useRouter,  } from "next/navigation";
 import { AppContext } from "@/context/appContext";
 import { makeWallet } from "@/lib/wallet";
+import { useToast } from "@/hooks/use-toast";
 
 
 
@@ -24,6 +25,8 @@ const mnemonic = generateMnemonic();
 
 const SeedPhrase = () => {
 const router = useRouter()
+
+const {toast} = useToast()
 
   const [isChecked, setIsChecked] = useState(false)
   const {walletState, setWalletState} = useContext(AppContext)
@@ -55,10 +58,17 @@ const router = useRouter()
           localStorage.setItem("wallets", JSON.stringify(newWallets) )
           localStorage.setItem("walletIndex", Number( walletState?.walletIndex + 1).toString())
         } 
+        toast({
+          description: "successfully made seed phrase",
+          variant: "success"
+        })
           router.push("/create-password")
 
     } catch (error) {
-        alert("something went wrong")
+      toast({
+        description: "something went wrong",
+        variant: "destructive"
+      })
     }
   }
 

@@ -1,66 +1,93 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
-    CardTitle,
   } from "@/components/ui/card"
-  import { Clipboard, Eye, EyeOff,Send, ArrowDownToLine } from 'lucide-react';
+  import { Clipboard, Eye, EyeOff,Send, ArrowDownToLine, RefreshCw } from 'lucide-react';
   import { Input } from "@/components/ui/input"
   import Image from 'next/image';
 import { Button } from './ui/button';
 import { WalletTypes } from '@/context/appContext';
 import axios from "axios";
 import AirdropAlert from './AirdropAlert';
-import { Network } from '@/app/wallets/page';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from "@/components/ui/skeleton"
+
 
 const AccountInfo = ({activeWallet, network} : {activeWallet: WalletTypes, network: string}) => {
 
-    const [isHidden,setIsHidden] = useState<boolean>(false)
+    const [isHidden,setIsHidden] = useState<boolean>(true)
 const [balance, setBalance] = useState<number>(0)
 const [isAirdropOpen, setIsAirdropOpen] = useState<boolean>(false)
+
+const [isLoading, setIsLoading] = useState<boolean>(false)
+
+const {toast} = useToast()
 
 const handleAirdropClick = ()=>{
   setIsAirdropOpen(true)
 }
 const requestAirdrop =  async(amount : number)=>{
   try {
-    const response = await axios.post(`https://solana-devnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`, {
+    const response = await axios.post(`https://solana-${network}.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`, {
       "jsonrpc": "2.0",
       "id": 1,
       "method": "requestAirdrop",
       "params": [activeWallet.publicId, amount]
       })
       if(response.status === 200){
-      alert("airdrop successeded")
+      toast({
+        description: "successfully added airdrop",
+        variant: "success",
+      })
       }
     } catch (error) {
-      console.log(error)
+      toast({
+        description: "something went wrong",
+        variant: "destructive",
+      })
     }finally{
       setIsAirdropOpen(false)
   }
 
 }
 
+const fetchbalance = useCallback( async()=>{
+  try {
+    setIsLoading(true)
+    const response = await axios.post(`https://solana-${network}.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`, {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getAccountInfo",
+    "params": [activeWallet.publicId]
+    })
+    if(response.status === 200){
+      if(response?.data?.result?.value?.lamports) {
+        setBalance((response.data.result.value.lamports)/1000000000 || 0)
+      }else{
+        console.log("value is changing")
+        setBalance(0)
+      }
+    }
+    
+  } catch (error) {
+    console.log(error)
+    toast({
+      description: "something went wrong",
+      variant: "destructive",
+    })
+  }finally{
+setIsLoading(false)
+  }
+}, [activeWallet.publicId, toast, network])
 
-const fetchbalance = async ()=>{
-const response = await axios.post(`https://solana-devnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`, {
-"jsonrpc": "2.0",
-"id": 1,
-"method": "getAccountInfo",
-"params": [activeWallet.publicId]
-})
-if(response.status === 200){
-setBalance((response.data.result.value.lamports)/1000000000 || 0)
-}
 
-}
     useEffect(()=>{
         fetchbalance()
-    }, [activeWallet])
+    }, [activeWallet, network, fetchbalance])
 
   return (
     <div className='col-span-3 flex-grow px-4 py-4'>
@@ -77,10 +104,15 @@ setBalance((response.data.result.value.lamports)/1000000000 || 0)
         </CardDescription>
       </CardHeader>
       <CardContent className='flex flex-col gap-3'>
-      <div>
-        <h1 className='text-lg font-medium'>
+      <div className='flex gap-3 items-center'>
+        {isLoading ? <Skeleton className='w-32 h-5 ' />  : 
+        <>
+        <h1 className='text-lg font-medium '>
           Balance : {balance} SOL
         </h1>
+        <Button onClick={fetchbalance} className='p-0  h-6 px-2 rounded-sm tracking-tighter' > <RefreshCw className='w-4 h-4' /> </Button>
+        </>
+        }
         
         </div>
         <div>
@@ -115,7 +147,7 @@ setBalance((response.data.result.value.lamports)/1000000000 || 0)
          <Send className='w-4 h-4'/>
          Send
           </Button>
-       <Button disabled={network === Network.mainnet } onClick={handleAirdropClick} variant={"default"} className="w-full bg-red-800 text-white hover:bg-red-700 flex gap-1">
+       <Button disabled={network === "mainnet" } onClick={handleAirdropClick} variant={"default"} className="w-full bg-red-800 text-white hover:bg-red-700 flex gap-1">
          <ArrowDownToLine className='w-4 h-4'/>
          Request Airdrop
           </Button>
